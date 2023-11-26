@@ -3,8 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:lottie/lottie.dart';
 import 'controller/image_picker_controller.dart';
+import 'package:lottie/lottie.dart';
 
 class NotificationBottomNav extends StatefulWidget {
   const NotificationBottomNav({Key? key}) : super(key: key);
@@ -36,17 +36,16 @@ class _NotificationBottomNavState extends State<NotificationBottomNav> {
             onPressed: () async {
               await controller.pickImage();
             },
-    style: ElevatedButton.styleFrom(
-    backgroundColor: Colors.green, side: BorderSide.none, shape: StadiumBorder()), child: Text('Pick Your Image', style: TextStyle(color: Colors.white),)
+            child: const Text('Pick your Image'),
           ),
           Obx(() {
             return Container(
               margin: const EdgeInsets.symmetric(vertical: 20),
               alignment: Alignment.center,
-              child: controller.image.value.path.isEmpty
+              child: controller.image.value?.path.isEmpty ?? true
                   ? Icon(Icons.camera, size: 50)
                   : Image.file(
-                File(controller.image.value.path),
+                File(controller.image.value!.path),
                 height: 200,
                 width: 200,
                 fit: BoxFit.cover,
@@ -56,13 +55,17 @@ class _NotificationBottomNavState extends State<NotificationBottomNav> {
           ElevatedButton(
             onPressed: () async {
               await controller.uploadImageToFirebase();
+              // You might want to add a feedback mechanism here
+              // For example, show a snackbar or update UI to indicate upload completion
             },
-    style: ElevatedButton.styleFrom(
-    backgroundColor: Colors.green, side: BorderSide.none, shape: StadiumBorder()), child: Text('Upload to Firebase Storage', style: TextStyle(color: Colors.white),)
+            child: const Text('Upload to Firebase Storage'),
           ),
           Obx(() {
-            // Return the Image.network widget to display the network image
-            return Image.network(controller.networkImage.value.toString());
+            if (controller.networkImage.value != null && controller.networkImage.value!.isNotEmpty) {
+              return Image.network(controller.networkImage.value!);
+            } else {
+              return const SizedBox(); // Return an empty SizedBox if no image available yet
+            }
           }),
         ],
       ),

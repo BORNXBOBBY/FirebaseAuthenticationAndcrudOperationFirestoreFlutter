@@ -11,6 +11,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
       options: FirebaseOptions(
+          storageBucket: 'gs://authflutter-c5045.appspot.com',
           apiKey: 'AIzaSyB-p8XLZiRPJwEdnqtPmuqIkcpmtyJuc0U',
           appId: '1:932623245436:android:6aa87e6b0e219a3eed69f9',
           messagingSenderId: '932623245436',

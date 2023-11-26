@@ -35,7 +35,7 @@ dependencies:
   fluttertoast: ^8.2.4
   google_sign_in: ^6.1.6
   sign_in_button: ^3.2.0
-  firebase_storage: ^11.0.15
+  firebase_storage: ^11.5.2
   curved_navigation_bar: ^1.0.3
   curved_labeled_navigation_bar: ^2.0.2
   cloud_firestore: ^4.4.5
