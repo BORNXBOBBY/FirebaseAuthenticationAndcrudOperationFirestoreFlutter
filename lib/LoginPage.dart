@@ -243,7 +243,7 @@ class _LoginPageState extends State<LoginPage> {
                       width: 60,
                       child: ElevatedButton(
                         onPressed: () {
-                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) =>  AuthenticationScreen(),));
+                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) =>  HomePage(),));
                           signInWithGoogle();
                         },
                         child: Image(
