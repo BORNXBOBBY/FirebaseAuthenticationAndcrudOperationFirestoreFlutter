@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'Account.dart';
 import 'cart.dart';
 import 'Home.dart';
-import 'Notification.dart';
+import 'GalleryStore.dart';
 import 'Store.dart';
 
 class BottomNavigation extends StatefulWidget {

@@ -5,7 +5,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 import 'BottomNavigation.dart';
-import 'GoogleAuth.dart';
+import 'EditProfile.dart';
 import 'PhoneAuth/SendOtp.dart';
 import 'SignUpPage.dart';
 // import 'auth/login.dart';
@@ -243,7 +243,7 @@ class _LoginPageState extends State<LoginPage> {
                       width: 60,
                       child: ElevatedButton(
                         onPressed: () {
-                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) =>  HomePage(),));
+
                           signInWithGoogle();
                         },
                         child: Image(
@@ -337,6 +337,10 @@ class _LoginPageState extends State<LoginPage> {
     );
 
     // Once signed in, return the UserCredential
-    return await FirebaseAuth.instance.signInWithCredential(credential);
+    UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) =>  BottomNavigation(),));
+    return userCredential;
+
   }
 }

@@ -1,272 +1,147 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
+import 'dart:io';
 
-class CRUDEoperation extends StatefulWidget {
-  const CRUDEoperation({super.key});
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:image_picker/image_picker.dart';
+
+class ImagePickerUpload extends StatefulWidget {
+  const ImagePickerUpload({super.key});
 
   @override
-  State<CRUDEoperation> createState() => _MyWidgetState();
+  State<ImagePickerUpload> createState() => _ImagePickerUploadState();
 }
 
-class _MyWidgetState extends State<CRUDEoperation> {
-  // text field controller
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _numberController = TextEditingController();
-  final TextEditingController _snController = TextEditingController();
-  final TextEditingController _searchController = TextEditingController();
+class _ImagePickerUploadState extends State<ImagePickerUpload> {
+  final FirebaseStorage _storage = FirebaseStorage.instance;
+  final ImagePicker _picker = ImagePicker();
 
   final CollectionReference _items =
-  FirebaseFirestore.instance.collection('items');
+  FirebaseFirestore.instance.collection('UsersData');
 
-  String searchText = '';
-  // for create operation
-  Future<void> _create([DocumentSnapshot? documentSnapshot]) async {
-    await showModalBottomSheet(
-        isScrollControlled: true,
-        context: context,
-        builder: (BuildContext ctx) {
-          return Padding(
-            padding: EdgeInsets.only(
-                top: 20,
-                right: 20,
-                left: 20,
-                bottom: MediaQuery.of(ctx).viewInsets.bottom + 20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Center(
-                  child: Text(
-                    "Create your item",
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                TextField(
-                  controller: _nameController,
-                  decoration: const InputDecoration(
-                      labelText: 'Name', hintText: 'eg.Elon'),
-                ),
-                TextField(
-                  keyboardType: TextInputType.number,
-                  controller: _snController,
-                  decoration:
-                  const InputDecoration(labelText: 'S.N', hintText: 'eg.1'),
-                ),
-                TextField(
-                  keyboardType: TextInputType.number,
-                  controller: _numberController,
-                  decoration: const InputDecoration(
-                      labelText: 'Number', hintText: 'eg.10'),
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                ElevatedButton(
-                    onPressed: () async {
-                      final String name = _nameController.text;
-                      final int? sn = int.tryParse(_snController.text);
-                      final int? number = int.tryParse(_numberController.text);
-                      if (number != null) {
-                        await _items
-                            .add({"name": name, "number": number, "sn": sn});
-                        _nameController.text = '';
-                        _snController.text = '';
-                        _numberController.text = '';
+  var taskSnapshot;
 
-                        Navigator.of(context).pop();
-                      }
-                    },
-                    child: const Text("Create"))
-              ],
-            ),
-          );
-        });
-  }
+  File? _image;
 
-  // for Update operation
-  Future<void> _update([DocumentSnapshot? documentSnapshot]) async {
-    if (documentSnapshot != null) {
-      _nameController.text = documentSnapshot['name'];
-      _snController.text = documentSnapshot['sn'].toString();
-      _numberController.text = documentSnapshot['number'].toString();
+
+  var userNameStoreController = TextEditingController();
+  var userEmailStoreController = TextEditingController();
+  var userContactStoreController = TextEditingController();
+
+  Future getImageGallery() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        _image = File(pickedFile.path);
+      });
     }
-    await showModalBottomSheet(
-        isScrollControlled: true,
-        context: context,
-        builder: (BuildContext ctx) {
-          return Padding(
-            padding: EdgeInsets.only(
-                top: 20,
-                right: 20,
-                left: 20,
-                bottom: MediaQuery.of(ctx).viewInsets.bottom + 20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Center(
-                  child: Text(
-                    "Update your item",
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                TextField(
-                  controller: _nameController,
-                  decoration: const InputDecoration(
-                      labelText: 'Name', hintText: 'eg.Elon'),
-                ),
-                TextField(
-                  keyboardType: TextInputType.number,
-                  controller: _snController,
-                  decoration:
-                  const InputDecoration(labelText: 'S.N', hintText: 'eg.1'),
-                ),
-                TextField(
-                  keyboardType: TextInputType.number,
-                  controller: _numberController,
-                  decoration: const InputDecoration(
-                      labelText: 'Number', hintText: 'eg.10'),
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                ElevatedButton(
-                    onPressed: () async {
-                      final String name = _nameController.text;
-                      final int? sn = int.tryParse(_snController.text);
-                      final int? number = int.tryParse(_numberController.text);
-                      if (number != null) {
-                        await _items
-                            .doc(documentSnapshot!.id)
-                            .update({"name": name, "number": number, "sn": sn});
-                        _nameController.text = '';
-                        _snController.text = '';
-                        _numberController.text = '';
-
-                        Navigator.of(context).pop();
-                      }
-                    },
-                    child: const Text("Update"))
-              ],
-            ),
-          );
-        });
   }
 
-  // for delete operation
-  Future<void> _delete(String productID) async {
-    await _items.doc(productID).delete();
+  Future<void> _uploadImage() async {
+    try {
+      if (_image != null) {
+        String imageName = DateTime.now().millisecondsSinceEpoch.toString();
+        Reference reference = _storage.ref().child('images/$imageName.jpg');
+        UploadTask uploadTask = reference.putFile(_image!);
+        taskSnapshot = await uploadTask.whenComplete(() => print('Image uploaded.'));
 
-    // for snackBar
-    ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("You have successfully deleted a itmes")));
+        // Get the download URL
+        String downloadURL = await taskSnapshot.ref.getDownloadURL();
+
+        final String name = userNameStoreController.text;
+        final String email = userEmailStoreController.text;
+        final String contact = userContactStoreController.text;
+
+        await _items.add({'url': downloadURL, "name": name, "email": email, "contact": contact});
+
+        userNameStoreController.text = '';
+        userEmailStoreController.text = '';
+        userContactStoreController.text = '';
+
+        // Show a toast message
+        Fluttertoast.showToast(
+          msg: "Data successfully registered in Firebase",
+          backgroundColor: Colors.blueGrey,
+          timeInSecForIosWeb: 5,
+        );
+
+        Navigator.of(context).pop();
+      } else {
+        print('No image selected');
+      }
+    } catch (e) {
+      print('Error uploading image: $e');
+    }
   }
-
-  void _onSearchChanged(String value) {
-    setState(() {
-      searchText = value;
-    });
-  }
-
-  bool isSearchClicked = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.blue,
-        title: isSearchClicked
-            ? Container(
-          height: 40,
-          decoration: BoxDecoration(
-            color: const Color.fromARGB(255, 95, 226, 77),
-            borderRadius: BorderRadius.circular(20.0),
-          ),
-          child: TextField(
-            controller: _searchController,
-            onChanged: _onSearchChanged,
-            decoration: const InputDecoration(
-                contentPadding: EdgeInsets.fromLTRB(16, 20, 16, 12),
-                hintStyle: TextStyle(color: Colors.black),
-                border: InputBorder.none,
-                hintText: 'Search..'),
-          ),
-        )
-            : const Text('CRUDE Operaion'),
-        centerTitle: true,
-        actions: [
-          IconButton(
-              onPressed: () {
-                setState(() {
-                  isSearchClicked = !isSearchClicked;
-                });
-              },
-              icon: Icon(isSearchClicked ? Icons.close : Icons.search))
-        ],
+        title: Text("Image Upload In Firebase"),
       ),
-      body: StreamBuilder(
-        stream: _items.snapshots(),
-        builder: (context, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
-          if (streamSnapshot.hasData) {
-            final List<DocumentSnapshot> items = streamSnapshot.data!.docs
-                .where((doc) => doc['name'].toLowerCase().contains(
-              searchText.toLowerCase(),
-            ))
-                .toList();
-            return ListView.builder(
-                itemCount: items.length,
-                itemBuilder: (context, index) {
-                  final DocumentSnapshot documentSnapshot = items[index];
-                  return Card(
-                    color: const Color.fromARGB(255, 88, 136, 190),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
+      body: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Center(
+              child: InkWell(
+                onTap: () {
+                  getImageGallery();
+                },
+                child: Container(
+                  margin: EdgeInsets.all(20),
+                  height: 200,
+                  width: 200,
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Colors.black,
                     ),
-                    margin: const EdgeInsets.all(10),
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        radius: 17,
-                        backgroundColor: const Color.fromARGB(255, 26, 226, 76),
-                        child: Text(
-                          documentSnapshot['sn'].toString(),
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold, color: Colors.black),
-                        ),
-                      ),
-                      title: Text(
-                        documentSnapshot['name'],
-                        style: const TextStyle(
-                            fontWeight: FontWeight.bold, color: Colors.black),
-                      ),
-                      subtitle: Text(documentSnapshot['number'].toString()),
-                      trailing: SizedBox(
-                        width: 100,
-                        child: Row(
-                          children: [
-                            IconButton(
-                                color: Colors.black,
-                                onPressed: () => _update(documentSnapshot),
-                                icon: const Icon(Icons.edit)),
-                            IconButton(
-                                color: Colors.black,
-                                onPressed: () => _delete(documentSnapshot.id),
-                                icon: const Icon(Icons.delete)),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                });
-          }
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        },
-      ),
-      // Create new project button
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _create(),
-        backgroundColor: const Color.fromARGB(255, 88, 136, 190),
-        child: const Icon(Icons.add),
+                  ),
+                  child: _image != null
+                      ? Image.file(_image!.absolute)
+                      : Center(child: Icon(Icons.image)),
+                ),
+              ),
+            ),
+            Container(
+                margin: EdgeInsets.all(15),
+                child: TextField(
+                    controller: userNameStoreController,
+                    decoration: InputDecoration(
+                      hintText: "Name",
+                    ))),
+            Container(
+                margin: EdgeInsets.all(15),
+                child: TextField(
+                    controller: userEmailStoreController,
+                    decoration: InputDecoration(
+                      hintText: "Email",
+                    ))),
+            Container(
+                margin: EdgeInsets.all(15),
+                child: TextField(
+                    controller: userContactStoreController,
+                    decoration: InputDecoration(
+                      hintText: "Contact",
+                    ))),
+            SizedBox(
+              height: 20,
+            ),
+            Container(
+              width: double.infinity,
+              margin: EdgeInsets.all(20),
+              child: ElevatedButton(
+                onPressed: () {
+                  _uploadImage(); // Corrected the function call
+                },
+                child: Text("Upload"),
+              ),
+            )
+          ],
+        ),
       ),
     );
   }

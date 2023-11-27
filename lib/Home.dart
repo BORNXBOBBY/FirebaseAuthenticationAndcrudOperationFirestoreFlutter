@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:lottie/lottie.dart';
 
 import 'LoginPage.dart';
@@ -13,17 +15,38 @@ class HomeBottomNav extends StatefulWidget {
 class _HomeBottomNavState extends State<HomeBottomNav> {
 
   bool switchValue = false;
+  Future<void> signOut() async {
+    await FirebaseAuth.instance.signOut();
+    await GoogleSignIn().signOut();
+    // Navigator.pushReplacementNamed(context, 'LoginPage');
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginPage()),
+    );
+
+  }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFE8F5E9),
+      // appBar: AppBar(
+      //   title: Text("Amazon"),
+      //   backgroundColor: Colors.green,
+      //   leading: IconButton(onPressed: () {
+      //     Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginPage(),));
+      //   }, icon: Icon(Icons.arrow_back)),
+      // ),
       appBar: AppBar(
-        title: Text("Amazon"),
         backgroundColor: Colors.green,
-        leading: IconButton(onPressed: () {
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginPage(),));
-        }, icon: Icon(Icons.arrow_back)),
+        title: const Text('Dashboard'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: signOut,
+          ),
+        ],
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
