@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'CRUDE/crude_operation.dart';
 import 'CRUDE/updata_firestore_data.dart';
+import 'Multiimage_Video.dart';
 
 class CRUDEoperation extends StatefulWidget {
   const CRUDEoperation({Key? key}) : super(key: key);
@@ -33,7 +34,10 @@ class _MyWidgetState extends State<CRUDEoperation> {
                   MaterialPageRoute(builder: (context) => ImagePickerUpload()),
                 );
               },
-              style: ElevatedButton.styleFrom(),
+              style: ElevatedButton.styleFrom(
+                primary: Colors.green, // Background color
+                onPrimary: Colors.white, // Text color
+              ),
               child: Text('Navigate to ImagePickerUpload'),
             ),
           ),
@@ -46,8 +50,27 @@ class _MyWidgetState extends State<CRUDEoperation> {
                   MaterialPageRoute(builder: (context) => UpdateFirestoreData()),
                 );
               },
-              style: ElevatedButton.styleFrom(),
+              style: ElevatedButton.styleFrom(
+                primary: Colors.green, // Background color
+                onPrimary: Colors.white, // Text color
+              ),
               child: Text('Navigate to UpdateFirestoreData'),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 3),
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => MultiImageVideo()),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                primary: Colors.green, // Background color
+                onPrimary: Colors.white, // Text color
+              ),
+              child: Text('MultipleImageAnd'),
             ),
           ),
         ],
@@ -59,4 +82,5 @@ class _MyWidgetState extends State<CRUDEoperation> {
       // ),
     );
   }
+
 }

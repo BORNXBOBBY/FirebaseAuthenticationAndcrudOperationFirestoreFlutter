@@ -159,6 +159,7 @@ class _UpdateFirestoreDataState extends State<UpdateFirestoreData> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.green,
         title: Text("Update Register Data"),
       ),
       body: Column(

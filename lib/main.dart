@@ -46,13 +46,17 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
+
+    // A StreamBuilder in Flutter is used to listen to a stream of data and rebuild its widget subtree whenever new data
+    // is emitted by the stream.
     return StreamBuilder<User?>(
       stream: FirebaseAuth.instance.authStateChanges(),
 
       builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
         if (snapshot.hasData) {
           return const BottomNavigation();
-        } else {
+        }
+        else {
           return const SplashScreen();
 
         }
@@ -60,3 +64,15 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 }
+
+
+// import 'package:flutter/cupertino.dart';
+//
+// class MyApp extends StatelessWidget{
+//   @override
+//   Widget build(BuildContext context) {
+//     // TODO: implement build
+//     throw UnimplementedError();
+//   }
+//
+// }

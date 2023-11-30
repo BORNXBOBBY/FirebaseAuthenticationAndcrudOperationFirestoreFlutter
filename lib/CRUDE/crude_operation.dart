@@ -80,6 +80,7 @@ class _ImagePickerUploadState extends State<ImagePickerUpload> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.green,
         title: Text("Image Upload In Firebase"),
       ),
       body: SingleChildScrollView(
@@ -137,9 +138,14 @@ class _ImagePickerUploadState extends State<ImagePickerUpload> {
                 onPressed: () {
                   _uploadImage(); // Corrected the function call
                 },
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all<Color>(Colors.green), // Background color
+                  foregroundColor: MaterialStateProperty.all<Color>(Colors.white), // Text color
+                ),
                 child: Text("Upload"),
               ),
             )
+
           ],
         ),
       ),
