@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 
 import 'CRUDE/crude_operation.dart';
 import 'CRUDE/updata_firestore_data.dart';
@@ -23,12 +24,24 @@ class _MyWidgetState extends State<CRUDEoperation> {
         backgroundColor: Colors.green,
         title: const Text('Store'),
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 3),
-            child: ElevatedButton(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              child: Lottie.network(
+                  'https://assets7.lottiefiles.com/packages/lf20_NODCLWy3iX.json'),
+            ),
+            const Text(
+              'My MultiMedia Storage',
+              style: TextStyle(
+                fontSize: 30,
+                fontWeight: FontWeight.bold,
+                color: Colors.red,
+              ),
+            ),
+            ElevatedButton(
               onPressed: () {
                 Navigator.push(
                   context,
@@ -36,15 +49,12 @@ class _MyWidgetState extends State<CRUDEoperation> {
                 );
               },
               style: ElevatedButton.styleFrom(
-                primary: Colors.green, // Background color
-                onPrimary: Colors.white, // Text color
+                primary: Colors.green,
+                onPrimary: Colors.white,
               ),
               child: Text('Navigate to ImagePickerUpload'),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 3),
-            child: ElevatedButton(
+            ElevatedButton(
               onPressed: () {
                 Navigator.push(
                   context,
@@ -52,15 +62,12 @@ class _MyWidgetState extends State<CRUDEoperation> {
                 );
               },
               style: ElevatedButton.styleFrom(
-                primary: Colors.green, // Background color
-                onPrimary: Colors.white, // Text color
+                primary: Colors.green,
+                onPrimary: Colors.white,
               ),
               child: Text('Navigate to UpdateFirestoreData'),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 3),
-            child: ElevatedButton(
+            ElevatedButton(
               onPressed: () {
                 Navigator.push(
                   context,
@@ -68,36 +75,14 @@ class _MyWidgetState extends State<CRUDEoperation> {
                 );
               },
               style: ElevatedButton.styleFrom(
-                primary: Colors.green, // Background color
-                onPrimary: Colors.white, // Text color
+                primary: Colors.green,
+                onPrimary: Colors.white,
               ),
               child: Text('MultipleImage'),
             ),
-          ),
-          // Padding(
-          //   padding: const EdgeInsets.only(top: 3),
-          //   child: ElevatedButton(
-          //     onPressed: () {
-          //       Navigator.push(
-          //         context,
-          //         MaterialPageRoute(builder: (context) => VideoPickerWidget()),
-          //       );
-          //     },
-          //     style: ElevatedButton.styleFrom(
-          //       primary: Colors.green, // Background color
-          //       onPrimary: Colors.white, // Text color
-          //     ),
-          //     child: Text('MultipleImageAndVideo'),
-          //   ),
-          // ),
-        ],
+          ],
+        ),
       ),
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: () => _create(),
-      //   backgroundColor: const Color.fromARGB(255, 88, 136, 190),
-      //   child: const Icon(Icons.add),
-      // ),
     );
   }
-
 }

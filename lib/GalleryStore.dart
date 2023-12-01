@@ -31,13 +31,18 @@ class _NotificationBottomNavState extends State<NotificationBottomNav> {
             child: Lottie.network('https://assets7.lottiefiles.com/packages/lf20_NODCLWy3iX.json'),
           ),
           const SizedBox(height: 20),
-          const Text('Image Show', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          const Text('Image Show', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold,color: Colors.red)),
           ElevatedButton(
             onPressed: () async {
               await controller.pickImage();
             },
+            style: ElevatedButton.styleFrom(
+              primary: Colors.green, // Background color
+              onPrimary: Colors.white, // Text color
+            ),
             child: const Text('Pick your Image'),
           ),
+
           Obx(() {
             return Container(
               margin: const EdgeInsets.symmetric(vertical: 20),
@@ -58,8 +63,13 @@ class _NotificationBottomNavState extends State<NotificationBottomNav> {
               // You might want to add a feedback mechanism here
               // For example, show a snackbar or update UI to indicate upload completion
             },
+            style: ElevatedButton.styleFrom(
+              primary: Colors.green, // Background color
+              onPrimary: Colors.white, // Text color
+            ),
             child: const Text('Upload to Firebase Storage'),
           ),
+
           Obx(() {
             if (controller.networkImage.value != null && controller.networkImage.value!.isNotEmpty) {
               return Image.network(controller.networkImage.value!);

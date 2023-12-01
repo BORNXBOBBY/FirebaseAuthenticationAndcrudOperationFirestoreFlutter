@@ -101,6 +101,7 @@ class _EditProfileState extends State<EditProfile> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.green,
         title: const Text("Edit Profile"),
       ),
       body: SingleChildScrollView(
@@ -159,11 +160,18 @@ class _EditProfileState extends State<EditProfile> {
                     context,
                     MaterialPageRoute(builder: (context) => const BottomNavigation()),
                   );
-
                 },
-                child: const Text("Save Changes"),
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.green, // Background color
+                  onPrimary: Colors.white, // Text color
+                ),
+                child: const Text(
+                  "Save Changes",
+                  style: TextStyle(color: Colors.white), // Text color
+                ),
               ),
             )
+
           ],
         ),
       ),

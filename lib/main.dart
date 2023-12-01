@@ -47,8 +47,6 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
 
-    // A StreamBuilder in Flutter is used to listen to a stream of data and rebuild its widget subtree whenever new data
-    // is emitted by the stream.
     return StreamBuilder<User?>(
       stream: FirebaseAuth.instance.authStateChanges(),
 

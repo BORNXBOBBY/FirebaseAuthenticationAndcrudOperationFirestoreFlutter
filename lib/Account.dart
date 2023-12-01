@@ -53,17 +53,28 @@ class _AccountBottomNavState extends State<AccountBottomNav> {
               SizedBox(height: 15,),
               if (_user != null && _user!.email != null)
                 Text(_user!.email!),
-
               Container(
                 margin: EdgeInsets.all(10),
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.push(context,MaterialPageRoute(builder: (context)=>EditProfile()));
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => EditProfile()),
+                    );
                   },
-                  child: Text("Edit Profile"),
-
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.green, // Background color
+                    onPrimary: Colors.white, // Text color
+                  ),
+                  child: Text(
+                    "Edit Profile",
+                    style: TextStyle(
+                      color: Colors.white, // Text color if needed
+                    ),
+                  ),
                 ),
               )
+
             ],
           ),
 
