@@ -17,11 +17,11 @@ class BottomNavigation extends StatefulWidget {
 class _BottomNavigationState extends State<BottomNavigation> {
   int selectedPageIndex = 0;
   var screens = [
-    const HomeBottomNav(),
+    HomeBottomNav(),
     const CRUDEoperation(),
     const NotificationBottomNav(),
     const AccountBottomNav(),
-    const CartBottomNav()
+    CartPage()
   ];
   @override
   Widget build(BuildContext context) {
