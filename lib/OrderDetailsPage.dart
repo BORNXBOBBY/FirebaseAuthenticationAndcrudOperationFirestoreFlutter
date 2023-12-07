@@ -42,6 +42,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                 Text('Seller ID: ${widget.data?['seller_id']}'),
                 Text('Description: ${widget.data?['product_dec']}'),
                 Text('Price: ${widget.data?['product_price']}'),
+
                 SizedBox(height: 16), // Add spacing between the details and buttons
                 Row(
                   children: [
@@ -79,6 +80,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                       'product_dec': widget.data?['product_dec'],
                       'product_price': widget.data?['product_price'],
                       'quantity': quantity,
+                      'products_image' : widget.data?['products_image'],
                       // Add other necessary details
                     }).then((value) {
                       // Show a success message or navigate to a success page

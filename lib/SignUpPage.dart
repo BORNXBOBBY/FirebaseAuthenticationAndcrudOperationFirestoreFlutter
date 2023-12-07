@@ -19,6 +19,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
   TextEditingController name = TextEditingController();
   TextEditingController email = TextEditingController();
+  TextEditingController phone = TextEditingController();
   TextEditingController address = TextEditingController();
   TextEditingController password = TextEditingController();
 
@@ -27,6 +28,8 @@ class _SignUpPageState extends State<SignUpPage> {
       Fluttertoast.showToast(msg: 'Invalid Name');
     } else if (!email.text.contains('@gmail.com')) {
       Fluttertoast.showToast(msg: 'Invalid Email');
+    } else if (phone.text.length == 9) {
+      Fluttertoast.showToast(msg: 'Enter minimum 10 digit password');
     } else if (address.text.length <= 5) {
       Fluttertoast.showToast(msg: 'Please fill your current address');
     } else if (password.text.length == 8) {
@@ -52,6 +55,7 @@ class _SignUpPageState extends State<SignUpPage> {
     FirebaseFirestore.instance.collection("users").doc(auth).set({
       "name": name.text,
       "email": email.text,
+      "phone": phone.text,
       "address": address.text,
       "password": password.text,
     }).then((value) => {
@@ -150,6 +154,47 @@ class _SignUpPageState extends State<SignUpPage> {
                     decoration: InputDecoration(
                         prefixIcon: Icon(Icons.mail),
                         hintText: "Enter your email",
+                        border: InputBorder.none,
+                        iconColor: Colors.white,
+                        contentPadding: EdgeInsets.symmetric(vertical: 18),
+                        hintStyle:
+                        TextStyle(color: Colors.white70, fontSize: 18),
+                        // prefixIcon: Icon(Icons.person,),
+                        prefixIconColor: Colors.white),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Container(
+            child: Padding(
+              padding: const EdgeInsets.only(left: 50, top: 30, bottom: 5),
+              child: Text(
+                'Mobile No *',
+                style: TextStyle(color: Colors.white, fontSize: 18),
+              ),
+            ),
+          ),
+          Container(
+            child: Padding(
+              padding: const EdgeInsets.only(left: 35, right: 35),
+              child: SizedBox(
+                height: 65,
+                child: Card(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                  color: Colors.white54,
+                  shadowColor: Colors.black,
+                  elevation: 10,
+                  child: TextField(
+                    //email authentication
+                    controller: phone,
+                    keyboardType: TextInputType.phone,
+                    cursorColor: Colors.white,
+                    style: TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                        prefixIcon: Icon(Icons.phone),
+                        hintText: "Enter your Mobile No.",
                         border: InputBorder.none,
                         iconColor: Colors.white,
                         contentPadding: EdgeInsets.symmetric(vertical: 18),

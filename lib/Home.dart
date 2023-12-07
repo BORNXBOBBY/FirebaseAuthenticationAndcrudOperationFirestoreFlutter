@@ -15,6 +15,8 @@ class HomeBottomNav extends StatefulWidget {
   State<HomeBottomNav> createState() => _HomeBottomNavState();
 }
 
+// Existing imports and class definition...
+
 class _HomeBottomNavState extends State<HomeBottomNav> {
   bool switchValue = false;
   Future<void> signOut() async {
@@ -27,9 +29,6 @@ class _HomeBottomNavState extends State<HomeBottomNav> {
     );
 
   }
-
-
-  // ... Your existing code
 
   @override
   Widget build(BuildContext context) {
@@ -47,8 +46,18 @@ class _HomeBottomNavState extends State<HomeBottomNav> {
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('/products').snapshots(),
-        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          // ... Your existing StreamBuilder code
+        builder: (
+            BuildContext context,
+            AsyncSnapshot<QuerySnapshot> snapshot,
+            ) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+
           return ListView(
             children: snapshot.data!.docs.map((DocumentSnapshot document) {
               Map<String, dynamic>? data =
@@ -63,40 +72,34 @@ class _HomeBottomNavState extends State<HomeBottomNav> {
                 return SizedBox(); // Skip rendering if any required field is null
               }
 
-              return Card(
-                margin: EdgeInsets.all(8.0),
-                child: ListTile(
-                  leading: Image.network(
-                    data['products_image']!,
-                    width: 80,
-                    height: 80,
-                    fit: BoxFit.cover,
-                  ),
-                  title: Text(data['product_title']!),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Seller ID: ${data['seller_id']}'),
-                      Text('Description: ${data['product_dec']}'),
-                      Text('Price: ${data['product_price']}'),
-                      SizedBox(height: 8),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => OrderDetailsPage(data: data),
-                            ),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          primary: Colors.green, // Set the background color to green
-                          onPrimary: Colors.white, // Set the text color to white
-                        ),
-                        child: Text('Order Details'),
-                      ),
-
-                    ],
+              return GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          OrderDetailsPage(data: data),
+                    ),
+                  );
+                },
+                child: Card(
+                  margin: EdgeInsets.all(8.0),
+                  child: ListTile(
+                    leading: Image.network(
+                      data['products_image']!,
+                      width: 80,
+                      height: 80,
+                      fit: BoxFit.cover,
+                    ),
+                    title: Text(data['product_title']!),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Seller ID: ${data['seller_id']}'),
+                        Text('Description: ${data['product_dec']}'),
+                        Text('Price: ${data['product_price']}'),
+                      ],
+                    ),
                   ),
                 ),
               );
@@ -104,7 +107,6 @@ class _HomeBottomNavState extends State<HomeBottomNav> {
           );
         },
       ),
-
     );
   }
 }
