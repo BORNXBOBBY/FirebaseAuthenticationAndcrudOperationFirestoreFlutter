@@ -29,6 +29,35 @@ class _HomeBottomNavState extends State<HomeBottomNav> {
     );
 
   }
+  CollectionReference autoIncrementCollection = FirebaseFirestore.instance.collection('auto_increment');
+
+  Future<int> getNextProductId() async {
+    DocumentSnapshot snapshot = await autoIncrementCollection.doc('product_counter').get();
+
+    if (snapshot.exists) {
+      Map<String, dynamic>? data = snapshot.data() as Map<String, dynamic>?;
+      if (data != null && data['next_id'] != null) {
+        int currentProductId = data['next_id'] as int;
+
+        await autoIncrementCollection.doc('product_counter').set({
+          'next_id': currentProductId + 1,
+        });
+
+        return currentProductId;
+      }
+    }
+
+    // If there's no valid data, you might want to handle this case or return a default value
+    return 0; // Returning 0 as a default product ID in case of error
+  }
+
+// Assuming you have a function to add products to Firestore
+  Future<void> addProduct(Map<String, dynamic> productData) async {
+    int productId = await getNextProductId();
+    productData['product_id'] = productId;
+
+    await FirebaseFirestore.instance.collection('products').add(productData);
+  }
 
   @override
   Widget build(BuildContext context) {

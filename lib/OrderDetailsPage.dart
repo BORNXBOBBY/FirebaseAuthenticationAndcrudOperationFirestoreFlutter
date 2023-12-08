@@ -42,7 +42,6 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                 Text('Seller ID: ${widget.data?['seller_id']}'),
                 Text('Description: ${widget.data?['product_dec']}'),
                 Text('Price: ${widget.data?['product_price']}'),
-
                 SizedBox(height: 16), // Add spacing between the details and buttons
                 Row(
                   children: [
