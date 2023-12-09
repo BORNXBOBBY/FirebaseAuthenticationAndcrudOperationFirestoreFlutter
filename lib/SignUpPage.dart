@@ -4,19 +4,15 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-
 import 'BottomNavigation.dart';
 import 'LoginPage.dart';
 
 class SignUpPage extends StatefulWidget {
-  final String phoneNumber;
-
-  SignUpPage({required this.phoneNumber, Key? key}) : super(key: key);
+  const SignUpPage({Key? key}) : super(key: key);
 
   @override
   State<SignUpPage> createState() => _SignUpPageState();
 }
-
 
 class _SignUpPageState extends State<SignUpPage> {
   TextEditingController name = TextEditingController();
@@ -44,28 +40,28 @@ class _SignUpPageState extends State<SignUpPage> {
   firebaseAuth() {
     FirebaseAuth.instance
         .createUserWithEmailAndPassword(
-            email: email.text, password: password.text)
+        email: email.text, password: password.text)
         .then((value) {
       Fluttertoast.showToast(msg: "Register Successful");
-      userData(value.user?.uid); // Pass the generated UID to userData()
+      userData(value.user?.uid); // Pass the UID to userData
     });
   }
 
   userData(String? uid) {
     FirebaseFirestore.instance.collection("users").doc(uid).set({
-      // Use the auto-generated UID as the document ID
-      "userId": uid,
+      "id": uid, // Set UID as ID field
       "name": name.text,
       "email": email.text,
       "phone": phone.text,
       "address": address.text,
       "password": password.text,
-    }).then((value) {
-      // After successful signup, redirect to the BottomNavigation page
+    }).then((value) => {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => BottomNavigation()),
-      );
+        MaterialPageRoute(
+          builder: (context) => const BottomNavigation(),
+        ),
+      )
     });
   }
 
@@ -88,6 +84,7 @@ class _SignUpPageState extends State<SignUpPage> {
               ),
             ),
           ),
+
           Padding(
             padding: EdgeInsets.only(left: 50, top: 50, bottom: 5),
             child: Text(
@@ -105,6 +102,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 color: Colors.white54,
                 shadowColor: Colors.black,
                 elevation: 10,
+
                 child: TextField(
                   //email authentication
                   controller: name,
@@ -117,7 +115,8 @@ class _SignUpPageState extends State<SignUpPage> {
                       border: InputBorder.none,
                       iconColor: Colors.white,
                       contentPadding: EdgeInsets.symmetric(vertical: 18),
-                      hintStyle: TextStyle(color: Colors.white70, fontSize: 18),
+                      hintStyle:
+                      TextStyle(color: Colors.white70, fontSize: 18),
                       // prefixIcon: Icon(Icons.person,),
                       prefixIconColor: Colors.white),
                 ),
@@ -157,7 +156,7 @@ class _SignUpPageState extends State<SignUpPage> {
                         iconColor: Colors.white,
                         contentPadding: EdgeInsets.symmetric(vertical: 18),
                         hintStyle:
-                            TextStyle(color: Colors.white70, fontSize: 18),
+                        TextStyle(color: Colors.white70, fontSize: 18),
                         // prefixIcon: Icon(Icons.person,),
                         prefixIconColor: Colors.white),
                   ),
@@ -198,7 +197,7 @@ class _SignUpPageState extends State<SignUpPage> {
                         iconColor: Colors.white,
                         contentPadding: EdgeInsets.symmetric(vertical: 18),
                         hintStyle:
-                            TextStyle(color: Colors.white70, fontSize: 18),
+                        TextStyle(color: Colors.white70, fontSize: 18),
                         // prefixIcon: Icon(Icons.person,),
                         prefixIconColor: Colors.white),
                   ),
@@ -239,7 +238,7 @@ class _SignUpPageState extends State<SignUpPage> {
                         iconColor: Colors.white,
                         contentPadding: EdgeInsets.symmetric(vertical: 18),
                         hintStyle:
-                            TextStyle(color: Colors.white70, fontSize: 18),
+                        TextStyle(color: Colors.white70, fontSize: 18),
                         // prefixIcon: Icon(Icons.person,),
                         prefixIconColor: Colors.white),
                   ),
@@ -281,7 +280,7 @@ class _SignUpPageState extends State<SignUpPage> {
                         iconColor: Colors.white,
                         contentPadding: EdgeInsets.symmetric(vertical: 18),
                         hintStyle:
-                            TextStyle(color: Colors.white70, fontSize: 18),
+                        TextStyle(color: Colors.white70, fontSize: 18),
                         // prefixIcon: Icon(Icons.person,),
                         prefixIconColor: Colors.white),
                   ),
