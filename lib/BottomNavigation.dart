@@ -18,9 +18,9 @@ class _BottomNavigationState extends State<BottomNavigation> {
   int selectedPageIndex = 0;
   var screens = [
     HomeBottomNav(),
-    const CRUDEoperation(),
-    const NotificationBottomNav(),
-    const AccountBottomNav(),
+    // const CRUDEoperation(),
+    // const NotificationBottomNav(),
+     AccountBottomNav(),
     CartPage()
   ];
   @override
@@ -38,14 +38,14 @@ class _BottomNavigationState extends State<BottomNavigation> {
                 backgroundColor: Colors.white,
                 icon: Icon(Icons.home,color: Colors.green,),
                 label: 'Home'),
-            BottomNavigationBarItem(
-                backgroundColor: Colors.white,
-                icon: Icon(Icons.storefront,color: Colors.green,),
-                label: 'Store'),
-            BottomNavigationBarItem(
-                backgroundColor: Colors.white,
-                icon: Icon(Icons.browse_gallery,color: Colors.green,),
-                label: 'Gallery'),
+            // BottomNavigationBarItem(
+            //     backgroundColor: Colors.white,
+            //     icon: Icon(Icons.storefront,color: Colors.green,),
+            //     label: 'Store'),
+            // BottomNavigationBarItem(
+            //     backgroundColor: Colors.white,
+            //     icon: Icon(Icons.browse_gallery,color: Colors.green,),
+            //     label: 'Gallery'),
             BottomNavigationBarItem(
                 backgroundColor: Colors.white,
                 icon: Icon(Icons.person,color: Colors.green,),

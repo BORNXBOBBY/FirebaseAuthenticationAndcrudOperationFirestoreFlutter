@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:google_auth_flutter/widgets/CustomElevatedButton.dart';
 import 'BottomNavigation.dart';
 import 'LoginPage.dart';
 
@@ -294,26 +295,25 @@ class _SignUpPageState extends State<SignUpPage> {
           Container(
             child: Padding(
               padding: EdgeInsets.only(left: 40, right: 40, top: 30),
-              child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                      elevation: 10,
-                      padding: EdgeInsets.symmetric(
-                          horizontal: 40.0, vertical: 20.0),
-                      primary: Colors.white,
-                      shape: StadiumBorder()),
-                onPressed: isLoading
-                    ? null // Disable button when loading
-                    : () {
+              child: CustomElevatedButton(
+                elevation: 10,
+                padding: EdgeInsets.symmetric(horizontal: 40.0, vertical: 20.0),
+                primary: Colors.white,
+                shape: StadiumBorder(),
+                onPressed: isLoading ? null : () {
                   validate();
                 },
                 child: isLoading
-                    ? CircularProgressIndicator() // Show loader when loading
+                    ? CircularProgressIndicator()
                     : Text(
                   'SUBMIT',
                   style: TextStyle(color: Colors.green, fontSize: 20),
-                ),),
+                ),
+              ),
             ),
           ),
+
+
           Padding(
             padding: const EdgeInsets.only(top: 40),
             child: Container(
