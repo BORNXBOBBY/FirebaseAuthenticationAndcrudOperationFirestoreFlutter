@@ -86,8 +86,14 @@ class _AccountBottomNavState extends State<AccountBottomNav> {
                               radius: 40,
                               backgroundImage: NetworkImage(_user!.photoURL!),
                             ),
-                          if (_user != null && _user!.email != null)
-                            Text('Email: ${_user!.email}'),
+                          Flexible(
+                            child: _user != null && _user!.email != null
+                                ? Text(
+                              'Email: ${_user!.email}',
+                              overflow: TextOverflow.ellipsis,
+                            )
+                                : SizedBox(),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 20),
@@ -109,11 +115,13 @@ class _AccountBottomNavState extends State<AccountBottomNav> {
                               ),
                               ListTile(
                                 title: Text('Phone'),
-                                subtitle: Text(_userData!['phone'] ?? 'No phone'),
+                                subtitle:
+                                Text(_userData!['phone'] ?? 'No phone'),
                               ),
                               ListTile(
                                 title: Text('Address'),
-                                subtitle: Text(_userData!['address'] ?? 'No address'),
+                                subtitle:
+                                Text(_userData!['address'] ?? 'No address'),
                               ),
                             ],
                           ],
@@ -123,7 +131,9 @@ class _AccountBottomNavState extends State<AccountBottomNav> {
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => EditProfile()),
+                            MaterialPageRoute(
+                              builder: (context) => EditProfile(),
+                            ),
                           );
                         },
                         icon: Icon(Icons.edit),

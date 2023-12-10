@@ -19,6 +19,10 @@ class _OtpPageState extends State<OtpPage> {
 
   FirebaseAuth auth = FirebaseAuth.instance;
 
+
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -53,6 +57,7 @@ class _OtpPageState extends State<OtpPage> {
                   child: ElevatedButton(
                     onPressed: () async {
                       try {
+
                         PhoneAuthCredential credential =
                         PhoneAuthProvider.credential(
                           verificationId: PhoneNumber.verify,
