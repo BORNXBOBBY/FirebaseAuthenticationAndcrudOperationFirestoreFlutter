@@ -9,6 +9,7 @@ class CartPage extends StatelessWidget {
     User? user = FirebaseAuth.instance.currentUser;
 
     return Scaffold(
+      backgroundColor: const Color(0xFFE8F5E9),
       appBar: AppBar(
         title: Text('Cart'),
         backgroundColor: Colors.green,

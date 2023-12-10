@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:lottie/lottie.dart';
 
 import 'EditProfile.dart';
 
@@ -43,58 +44,97 @@ class _AccountBottomNavState extends State<AccountBottomNav> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFE8F5E9),
       appBar: AppBar(
         backgroundColor: Colors.green,
         title: const Text('Account'),
       ),
-      body: Center(
-        child: Container(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              if (_user != null && _user!.photoURL != null)
-                CircleAvatar(
-                  radius: 50,
-                  backgroundImage: NetworkImage(_user!.photoURL!),
-                ),
-              SizedBox(height: 15),
-              if (_user != null && _user!.email != null)
-                Text('Email: ${_user!.email}'),
-              SizedBox(height: 15),
-              // Placeholder text for name, phone, and address
-              if (_userData != null)
-                Column(
-                  children: [
-                    Text('Name: ${_userData!['name'] ?? 'No name'}'),
-                    Text('Phone: ${_userData!['phone'] ?? 'No phone'}'),
-                    Text('Address: ${_userData!['address'] ?? 'No address'}'),
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              child: Lottie.network(
+                'https://assets7.lottiefiles.com/packages/lf20_NODCLWy3iX.json',
+              ),
+            ),
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 2,
+                      blurRadius: 5,
+                      offset: const Offset(0, 3),
+                    ),
                   ],
                 ),
-              Container(
-                margin: EdgeInsets.all(10),
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => EditProfile()),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    primary: Colors.green,
-                    onPrimary: Colors.white,
-                  ),
-                  child: Text(
-                    "Edit Profile",
-                    style: TextStyle(
-                      color: Colors.white,
-                    ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          if (_user != null && _user!.photoURL != null)
+                            CircleAvatar(
+                              radius: 40,
+                              backgroundImage: NetworkImage(_user!.photoURL!),
+                            ),
+                          if (_user != null && _user!.email != null)
+                            Text('Email: ${_user!.email}'),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      const Text(
+                        'User Information',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Expanded(
+                        child: ListView(
+                          shrinkWrap: true,
+                          children: [
+                            if (_userData != null) ...[
+                              ListTile(
+                                title: Text('Name'),
+                                subtitle: Text(_userData!['name'] ?? 'No name'),
+                              ),
+                              ListTile(
+                                title: Text('Phone'),
+                                subtitle: Text(_userData!['phone'] ?? 'No phone'),
+                              ),
+                              ListTile(
+                                title: Text('Address'),
+                                subtitle: Text(_userData!['address'] ?? 'No address'),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => EditProfile()),
+                          );
+                        },
+                        icon: Icon(Icons.edit),
+                        color: Colors.green,
+                      ),
+                    ],
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
