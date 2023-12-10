@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:lottie/lottie.dart';
 
 class OrderDetailsPage extends StatefulWidget {
@@ -13,6 +14,11 @@ class OrderDetailsPage extends StatefulWidget {
 
 class _OrderDetailsPageState extends State<OrderDetailsPage> {
   int quantity = 1;
+
+  Future<String?> getCurrentUserID() async {
+    final user = FirebaseAuth.instance.currentUser;
+    return user?.uid;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,40 +74,44 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                 ),
                 SizedBox(height: 16), // Add spacing between the quantity and "Buy Now" button
                 ElevatedButton(
-                  onPressed: () {
-                    // Implement "Buy Now" functionality here
-                    // This can include navigation, adding to cart, or making a purchase
-
-                    // Store details in a new collection in Firestore
-                    FirebaseFirestore.instance.collection('purchased_items').add({
-                      'product_title': widget.data?['product_title'],
-                      'seller_id': widget.data?['seller_id'],
-                      'product_dec': widget.data?['product_dec'],
-                      'product_price': widget.data?['product_price'],
-                      'quantity': quantity,
-                      'products_image' : widget.data?['products_image'],
-                      // Add other necessary details
-                    }).then((value) {
-                      // Show a success message or navigate to a success page
+                  onPressed: () async {
+                    final currentUserID = await getCurrentUserID();
+                    if (currentUserID != null) {
+                      // Store details in a new collection in Firestore
+                      FirebaseFirestore.instance.collection('purchased_items').add({
+                        'user_id': currentUserID,
+                        'product_title': widget.data?['product_title'],
+                        'seller_id': widget.data?['seller_id'],
+                        'product_dec': widget.data?['product_dec'],
+                        'product_price': widget.data?['product_price'],
+                        'quantity': quantity,
+                        'products_image': widget.data?['products_image'],
+                        // Add other necessary details
+                      }).then((value) {
+                        // Show a success message or navigate to a success page
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Item purchased successfully!')),
+                        );
+                      }).catchError((error) {
+                        // Handle errors if any
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Failed to purchase item: $error')),
+                        );
+                      });
+                    } else {
+                      // Handle scenario when user is not logged in
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Item purchased successfully!')),
+                        SnackBar(content: Text('Please login to buy this item')),
                       );
-                    }).catchError((error) {
-                      // Handle errors if any
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Failed to purchase item: $error')),
-                      );
+                      // Redirect the user to the login page or any other action
                     }
-
-                    );
                   },
                   style: ElevatedButton.styleFrom(
-                    primary: Colors.green, // Set the background color to green
-                    onPrimary: Colors.white, // Set the text color to white
+                    primary: Colors.green,
+                    onPrimary: Colors.white,
                   ),
                   child: Text('Buy Now'),
                 ),
-
                 // Add other details as needed
               ],
             ),

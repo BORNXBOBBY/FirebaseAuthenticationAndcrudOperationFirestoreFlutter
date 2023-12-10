@@ -27,8 +27,8 @@ class _OtpPageState extends State<OtpPage> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
-            // Your UI elements here
             children: [
+              // Your UI elements here
               Padding(
                 padding: const EdgeInsets.only(top: 50),
                 child: const Image(
@@ -54,13 +54,13 @@ class _OtpPageState extends State<OtpPage> {
                     onPressed: () async {
                       try {
                         PhoneAuthCredential credential =
-                            PhoneAuthProvider.credential(
+                        PhoneAuthProvider.credential(
                           verificationId: PhoneNumber.verify,
                           smsCode: pinController.text,
                         );
 
                         UserCredential userCredential =
-                            await auth.signInWithCredential(credential);
+                        await auth.signInWithCredential(credential);
 
                         // Check if the user is new or existing
                         if (userCredential.additionalUserInfo!.isNewUser) {

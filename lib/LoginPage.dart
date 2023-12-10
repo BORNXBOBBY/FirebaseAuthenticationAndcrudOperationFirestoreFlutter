@@ -16,6 +16,7 @@ class LoginPage extends StatefulWidget {
   @override
   State<LoginPage> createState() => _LoginPageState();
 }
+bool isLoading = false; // Track loading state
 
 class _LoginPageState extends State<LoginPage> {
 
@@ -177,13 +178,18 @@ class _LoginPageState extends State<LoginPage> {
                           horizontal: 40.0, vertical: 20.0),
                       primary: Colors.white,
                       shape: StadiumBorder()),
-                  onPressed: () {
-                    userLogin();
-                  },
-                  child: Text(
-                    'LOGIN',
-                    style: TextStyle(color: Colors.green, fontSize: 20),
-                  )),
+                onPressed: isLoading
+                    ? null // Disable button when loading
+                    : () {
+                  userLogin();
+                },
+                child: isLoading
+                    ? CircularProgressIndicator() // Show loader when loading
+                    : Text(
+                  'LOGIN',
+                  style: TextStyle(color: Colors.green, fontSize: 20),
+                ),
+),
             ),
           ),
           Padding(

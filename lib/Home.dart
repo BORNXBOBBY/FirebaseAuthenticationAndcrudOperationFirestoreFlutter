@@ -65,7 +65,7 @@ class _HomeBottomNavState extends State<HomeBottomNav> {
       backgroundColor: const Color(0xFFE8F5E9),
       appBar: AppBar(
         backgroundColor: Colors.green,
-        title: const Text('Shopping Now...'),
+        title: const Text('Shopping Item'),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),

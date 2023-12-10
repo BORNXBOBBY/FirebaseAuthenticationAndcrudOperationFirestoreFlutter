@@ -21,6 +21,9 @@ class _SignUpPageState extends State<SignUpPage> {
   TextEditingController address = TextEditingController();
   TextEditingController password = TextEditingController();
 
+  bool isLoading = false; // Track loading state
+
+
   validate() {
     if (name.text.length <= 3) {
       Fluttertoast.showToast(msg: 'Invalid Name');
@@ -298,13 +301,17 @@ class _SignUpPageState extends State<SignUpPage> {
                           horizontal: 40.0, vertical: 20.0),
                       primary: Colors.white,
                       shape: StadiumBorder()),
-                  onPressed: () {
-                    validate();
-                  },
-                  child: Text(
-                    'SUBMIT',
-                    style: TextStyle(color: Colors.green, fontSize: 20),
-                  )),
+                onPressed: isLoading
+                    ? null // Disable button when loading
+                    : () {
+                  validate();
+                },
+                child: isLoading
+                    ? CircularProgressIndicator() // Show loader when loading
+                    : Text(
+                  'SUBMIT',
+                  style: TextStyle(color: Colors.green, fontSize: 20),
+                ),),
             ),
           ),
           Padding(

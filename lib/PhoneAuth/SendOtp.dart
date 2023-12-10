@@ -20,6 +20,7 @@ class PhoneNumber extends StatefulWidget {
 class _PhoneNumberState extends State<PhoneNumber> {
 
   TextEditingController phoneController=TextEditingController();
+  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -54,29 +55,46 @@ class _PhoneNumberState extends State<PhoneNumber> {
             child: SizedBox(
               height: 50,
               child: ElevatedButton(
-                  onPressed: () async {
-                    try {
-                      await FirebaseAuth.instance.verifyPhoneNumber(
-                        phoneNumber: '+91${phoneController.text}',
-                        verificationCompleted: (PhoneAuthCredential credential) {},
-                        verificationFailed: (FirebaseAuthException e) {},
-                        codeSent: (String verificationId, int? resendToken) {
-                          PhoneNumber.verify=verificationId;
-                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const OtpPage(),));
-                          Fluttertoast.showToast(msg: "Sent OTP");
-                        },
-                        codeAutoRetrievalTimeout: (String verificationId) {},
-                      );
-                    }
-                    catch(e){
-                      Fluttertoast.showToast(msg: "OTP Failed");
-                    }
-                  },style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green, side: BorderSide.none, shape: StadiumBorder()),
-                  child: const Text("Send Otp")
+                onPressed: isLoading
+                    ? null // Disable button when loading
+                    : () async {
+                  setState(() {
+                    isLoading = true; // Start loading
+                  });
+                  try {
+                    await FirebaseAuth.instance.verifyPhoneNumber(
+                      phoneNumber: '+91${phoneController.text}',
+                      verificationCompleted: (PhoneAuthCredential credential) {},
+                      verificationFailed: (FirebaseAuthException e) {},
+                      codeSent: (String verificationId, int? resendToken) {
+                        PhoneNumber.verify = verificationId;
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) => const OtpPage()),
+                        );
+                        Fluttertoast.showToast(msg: "Sent OTP");
+                      },
+                      codeAutoRetrievalTimeout: (String verificationId) {},
+                    );
+                  } catch (e) {
+                    Fluttertoast.showToast(msg: "OTP Failed");
+                  } finally {
+                    setState(() {
+                      isLoading = false; // Stop loading
+                    });
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  side: BorderSide.none,
+                  shape: StadiumBorder(),
+                ),
+                child: isLoading
+                    ? CircularProgressIndicator() // Show loader when loading
+                    : const Text("Send Otp"),
               ),
             ),
-          )
+          ),
         ],
       ),
     );
