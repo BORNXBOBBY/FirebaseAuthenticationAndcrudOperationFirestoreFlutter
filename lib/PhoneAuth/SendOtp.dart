@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'package:lottie/lottie.dart';
 
 import '../Account.dart';
@@ -29,10 +31,28 @@ class _PhoneNumberState extends State<PhoneNumber> {
         .where('phone', isEqualTo: phone)
         .get();
     return snapshot.docs.isEmpty; // If docs are empty, phone is unique
+
   }
 
 
-  @override
+  Future<void>codeSent(String verificationId, int? resendToken) async {
+  PhoneNumber.verify = verificationId;
+  // Store verificationId in SharedPreferences
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  prefs.setString('verificationId', verificationId);
+  Navigator.pushReplacement(
+  context,
+  MaterialPageRoute(builder: (context) => const OtpPage()),
+  );
+  Fluttertoast.showToast(msg: "Sent OTP");
+}
+
+Future<String?> getStoredVerificationId() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  return prefs.getString('verificationId');
+}
+
+@override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(

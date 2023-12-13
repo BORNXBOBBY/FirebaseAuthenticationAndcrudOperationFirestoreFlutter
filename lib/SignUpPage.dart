@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_auth_flutter/widgets/CustomElevatedButton.dart';
 import 'BottomNavigation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'LoginPage.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -24,50 +26,101 @@ class _SignUpPageState extends State<SignUpPage> {
 
   bool isLoading = false; // Track loading state
 
-
-  validate() {
+  Future<void> validate() async {
     if (name.text.length <= 3) {
       Fluttertoast.showToast(msg: 'Invalid Name');
     } else if (!email.text.contains('@gmail.com')) {
       Fluttertoast.showToast(msg: 'Invalid Email');
-    } else if (phone.text.length == 9) {
-      Fluttertoast.showToast(msg: 'Enter minimum 10 digit password');
+    } else if (phone.text.length < 10) {
+      Fluttertoast.showToast(msg: 'Enter a valid 10 digit phone number');
     } else if (address.text.length <= 5) {
       Fluttertoast.showToast(msg: 'Please fill your current address');
-    } else if (password.text.length == 8) {
-      Fluttertoast.showToast(msg: 'Enter minimum 8 digit password');
+    } else if (password.text.length < 8) {
+      Fluttertoast.showToast(msg: 'Password should have at least 8 characters');
     } else {
-      firebaseAuth();
+      await checkIfPhoneExists(context);
     }
   }
 
-  firebaseAuth() {
-    FirebaseAuth.instance
-        .createUserWithEmailAndPassword(
-        email: email.text, password: password.text)
-        .then((value) {
-      Fluttertoast.showToast(msg: "Register Successful");
-      userData(value.user?.uid); // Pass the UID to userData
-    });
+  // / Function to check if the phone number is already registered
+  Future<void> checkIfPhoneExists(BuildContext context) async {
+    final userSnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .where('phone', isEqualTo: phone.text)
+        .get();
+
+    if (userSnapshot.docs.isNotEmpty) {
+      Fluttertoast.showToast(msg: 'Phone number is already registered');
+    } else {
+      await firebaseAuth(context);
+    }
   }
 
-  userData(String? uid) {
-    FirebaseFirestore.instance.collection("users").doc(uid).set({
+  Future<void> firebaseAuth(BuildContext context) async {
+    try {
+      UserCredential userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+          email: email.text, password: password.text);
+
+      if (userCredential.user != null) {
+        await userData(userCredential.user!.uid);
+        // Navigate to the next screen after successful registration
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const BottomNavigation()),
+        );
+      }
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'email-already-in-use') {
+        Fluttertoast.showToast(msg: 'Email is already registered');
+      } else {
+        Fluttertoast.showToast(msg: 'Error: ${e.message}');
+      }
+    } catch (e) {
+      Fluttertoast.showToast(msg: 'Error: $e');
+    }
+  }
+
+
+
+  // firebaseAuth() {
+  //   FirebaseAuth.instance
+  //       .createUserWithEmailAndPassword(
+  //       email: email.text, password: password.text)
+  //       .then((value) {
+  //     Fluttertoast.showToast(msg: "Register Successful");
+  //     userData(value.user?.uid); // Pass the UID to userData
+  //   });
+  // }
+
+  userData(String? uid) async {
+    final userData = {
       "id": uid, // Set UID as ID field
       "name": name.text,
       "email": email.text,
       "phone": phone.text,
       "address": address.text,
       "password": password.text,
-    }).then((value) => {
+    };
+
+    FirebaseFirestore.instance.collection("users").doc(uid).set(userData).then((value) async {
+      final prefs = await SharedPreferences.getInstance();
+      prefs.setString('userDocId', uid ?? ''); // Save the document ID to SharedPreferences
+
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
           builder: (context) => const BottomNavigation(),
         ),
-      )
+      );
     });
   }
+  Future<String?> getStoredDocId() async {
+    final prefs = await SharedPreferences.getInstance();
+    final storedDocId = prefs.getString('userDocId');
+    return storedDocId;
+  }
+
 
   @override
   Widget build(BuildContext context) {
