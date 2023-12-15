@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -35,17 +36,29 @@ class _PhoneNumberState extends State<PhoneNumber> {
   }
 
 
-  Future<void>codeSent(String verificationId, int? resendToken) async {
-  PhoneNumber.verify = verificationId;
-  // Store verificationId in SharedPreferences
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  prefs.setString('verificationId', verificationId);
-  Navigator.pushReplacement(
-  context,
-  MaterialPageRoute(builder: (context) => const OtpPage()),
-  );
-  Fluttertoast.showToast(msg: "Sent OTP");
-}
+
+  Future<void> codeSent(String verificationId, int? resendToken) async {
+    PhoneNumber.verify = verificationId;
+    // Store verificationId in SharedPreferences
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('verificationId', verificationId);
+
+    // Check if the user is logged in, if so, go to the Account page, else go to the Login page
+    FirebaseAuth auth = FirebaseAuth.instance;
+    if (auth.currentUser != null) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const OtpPage()),
+      );
+    } else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginPage()),
+      );
+    }
+    Fluttertoast.showToast(msg: "Sent OTP");
+  }
+
 
 Future<String?> getStoredVerificationId() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -78,7 +91,11 @@ Future<String?> getStoredVerificationId() async {
             child: TextField(
               controller: phoneController,
               keyboardType: TextInputType.phone,
-              maxLength: 10,
+              inputFormatters: [
+                LengthLimitingTextInputFormatter(10), // Limit input to 10 characters
+                FilteringTextInputFormatter.digitsOnly, // Allow only digits
+              ],
+
               decoration: InputDecoration(
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(5),

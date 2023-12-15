@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'BottomNavigation.dart';
 import 'EditProfile.dart';
@@ -328,13 +329,38 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Future<UserCredential> signInWithGoogle() async {
+  // Future<UserCredential> signInWithGoogle() async {
+  //   // Trigger the authentication flow
+  //   final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+  //
+  //   // Obtain the auth details from the request
+  //   final GoogleSignInAuthentication? googleAuth = await googleUser
+  //       ?.authentication;
+  //
+  //   // Create a new credential
+  //   final credential = GoogleAuthProvider.credential(
+  //     accessToken: googleAuth?.accessToken,
+  //     idToken: googleAuth?.idToken,
+  //   );
+  //
+  //   // Once signed in, return the UserCredential
+  //   UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+  //
+  //   Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) =>  BottomNavigation(),));
+  //   return userCredential;
+  //
+  // }
+  Future<UserCredential?> signInWithGoogle() async {
     // Trigger the authentication flow
     final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
 
+    if (googleUser == null) {
+      // Handle if Google sign-in is canceled or fails
+      return null;
+    }
+
     // Obtain the auth details from the request
-    final GoogleSignInAuthentication? googleAuth = await googleUser
-        ?.authentication;
+    final GoogleSignInAuthentication? googleAuth = await googleUser.authentication;
 
     // Create a new credential
     final credential = GoogleAuthProvider.credential(
@@ -343,10 +369,132 @@ class _LoginPageState extends State<LoginPage> {
     );
 
     // Once signed in, return the UserCredential
-    UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+    try {
+      UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
 
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) =>  BottomNavigation(),));
-    return userCredential;
+      // Store the document ID in SharedPreferences
+      if (userCredential.user != null) {
+        String? docId = userCredential.user!.uid;
+        final prefs = await SharedPreferences.getInstance();
+        prefs.setString('userDocId', docId);
+      }
 
+      // Navigate to the BottomNavigation page
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => BottomNavigation()),
+      );
+
+      return userCredential;
+    } catch (e) {
+      // Handle sign-in errors
+      print('Error signing in with Google: $e');
+      return null;
+    }
   }
+
+
+
+
+
+
+  // Future<bool> isEmailRegistered(String email) async {
+  //   try {
+  //     QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore.instance
+  //         .collection('users')
+  //         .where('email', isEqualTo: email)
+  //         .get();
+  //
+  //     return snapshot.docs.isNotEmpty;
+  //   } catch (e) {
+  //     print('Error checking email registration: $e');
+  //     return false;
+  //   }
+  // }
+  //
+  // Future<void> signInOrRegisterUser() async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   String? storedDocId = prefs.getString('userDocId');
+  //
+  //   if (storedDocId != null && storedDocId.isNotEmpty) {
+  //     // Stored userDocId exists, check if the user's email is registered
+  //     String? email = prefs.getString('userEmail');
+  //     if (email != null && email.isNotEmpty) {
+  //       bool emailExists = await isEmailRegistered(email);
+  //
+  //       if (emailExists) {
+  //         // Email exists in Firestore, navigate to BottomNavigation
+  //         Navigator.pushReplacement(
+  //           context,
+  //           MaterialPageRoute(builder: (context) => BottomNavigation()),
+  //         );
+  //       } else {
+  //         // Email doesn't exist, navigate to SignUpPage
+  //         Navigator.pushReplacement(
+  //           context,
+  //           MaterialPageRoute(builder: (context) => SignUpPage()),
+  //         );
+  //       }
+  //     } else {
+  //       // Email is null or empty, handle accordingly
+  //     }
+  //   } else {
+  //     // No stored userDocId, perform Google sign-in
+  //     await signInWithGoogle();
+  //   }
+  // }
+  //
+  // Future<void> signInWithGoogle() async {
+  //   // ... your previous signInWithGoogle logic
+  //   // Trigger the authentication flow
+  //   final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+  //
+  //   if (googleUser == null) {
+  //     // Handle if Google sign-in is canceled or fails
+  //     return;
+  //   }
+  //
+  //   // Obtain the auth details from the request
+  //   final GoogleSignInAuthentication? googleAuth = await googleUser.authentication;
+  //
+  //   // Create a new credential
+  //   final credential = GoogleAuthProvider.credential(
+  //     accessToken: googleAuth?.accessToken,
+  //     idToken: googleAuth?.idToken,
+  //   );
+  //
+  //   try {
+  //     UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+  //
+  //     if (userCredential.user != null) {
+  //       String? email = userCredential.user!.email;
+  //
+  //       if (email != null && email.isNotEmpty) {
+  //         // Check if the user's email already exists in Firestore
+  //         bool emailExists = await isEmailRegistered(email);
+  //
+  //         if (emailExists) {
+  //           // Email exists, navigate to BottomNavigation
+  //           Navigator.pushReplacement(
+  //             context,
+  //             MaterialPageRoute(builder: (context) => BottomNavigation()),
+  //           );
+  //         } else {
+  //           // Email doesn't exist, navigate to SignUpPage
+  //           Navigator.pushReplacement(
+  //             context,
+  //             MaterialPageRoute(builder: (context) => SignUpPage()),
+  //           );
+  //         }
+  //       } else {
+  //         // Email is null or empty, handle accordingly
+  //       }
+  //     }
+  //   } catch (e) {
+  //     // Handle sign-in errors
+  //     print('Error signing in with Google: $e');
+  //   }
+  // }
+  //
+
 }

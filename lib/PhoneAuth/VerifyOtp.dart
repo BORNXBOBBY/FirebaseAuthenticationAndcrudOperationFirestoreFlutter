@@ -5,6 +5,7 @@ import 'package:google_auth_flutter/SignUpPage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:pinput/pinput.dart';
 import '../BottomNavigation.dart';
+import '../PhoneSignUp.dart';
 import 'SendOtp.dart';
 
 class OtpPage extends StatefulWidget {
@@ -74,7 +75,7 @@ class _OtpPageState extends State<OtpPage> {
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => SignUpPage(),
+                              builder: (context) => PhoneSignUp(),
                             ),
                           );
                         } else {

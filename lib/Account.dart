@@ -166,6 +166,23 @@ class AccountBottomNav extends StatefulWidget {
 }
 
 class _AccountBottomNavState extends State<AccountBottomNav> {
+  // User? _user;
+  // Map<String, dynamic>? _userData;
+  //
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   FirebaseAuth.instance.authStateChanges().listen((event) async {
+  //     setState(() {
+  //       _user = event;
+  //     });
+  //     if (_user != null) {
+  //       await fetchUserData(_user!.uid);
+  //     }
+  //   });
+  // }
+
+
   User? _user;
   Map<String, dynamic>? _userData;
 
@@ -177,22 +194,41 @@ class _AccountBottomNavState extends State<AccountBottomNav> {
         _user = event;
       });
       if (_user != null) {
-        await fetchUserData(_user!.uid);
+        await fetchUserData(_user!.uid); // Fetch data using UID
       }
     });
   }
 
-  Future<void> fetchUserData(String uid) async {
+
+  // Future<void> fetchUserData(String uid) async {
+  //   try {
+  //     DocumentSnapshot<Map<String, dynamic>> snapshot =
+  //     await FirebaseFirestore.instance.collection('users').doc(uid).get();
+  //     setState(() {
+  //       _userData = snapshot.data();
+  //     });
+  //   } catch (e) {
+  //     print('Error fetching user data: $e');
+  //   }
+  // }
+
+  Future<void> fetchUserData(String? userId) async {
     try {
       DocumentSnapshot<Map<String, dynamic>> snapshot =
-      await FirebaseFirestore.instance.collection('users').doc(uid).get();
-      setState(() {
-        _userData = snapshot.data();
-      });
+      await FirebaseFirestore.instance.collection('users').doc(userId).get();
+
+      if (snapshot.exists) {
+        setState(() {
+          _userData = snapshot.data();
+        });
+      } else {
+        print('No user data found for user ID: $userId');
+      }
     } catch (e) {
       print('Error fetching user data: $e');
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
