@@ -21,27 +21,65 @@ bool isLoading = false; // Track loading state
 
 class _LoginPageState extends State<LoginPage> {
 
-  TextEditingController email = TextEditingController();
-  TextEditingController password = TextEditingController();
+  final emailLoginController = TextEditingController();
+  final passwordLoginController = TextEditingController();
+  bool isLoading = false; // Track loading state
 
 
 
-  userLogin() async {
-    var mAuth = FirebaseAuth.instance;
+
+  void userLogin() async {
+    setState(() {
+      isLoading = true; // Start loading state
+    });
+
     try {
-      await mAuth.signInWithEmailAndPassword(
-          email: email.text, password: password.text);
-      Fluttertoast.showToast(
-          msg: "Login Successful ", textColor: Colors.yellowAccent);
+      var mAuth = FirebaseAuth.instance;
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: emailLoginController.text,
+        password: passwordLoginController.text,
+      ).then((value) async {
+        // If sign-in is successful
+        Fluttertoast.showToast(
+          msg: "Login successful",
+          backgroundColor: Colors.blueGrey,
+          timeInSecForIosWeb: 5,
+        );
 
-      // ignore: use_build_context_synchronously
-      Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const BottomNavigation()));
+        // Store the user document ID in shared preferences
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setString('userDocId', value.user?.uid ?? '');
+        prefs.setBool('isPhone', false);
+
+        // Navigate to the 'dashboard' route
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => BottomNavigation()),
+        );
+      }).catchError((error) {
+        // If there's an error during sign-in
+        print("Error: ${error.toString()}");
+        Fluttertoast.showToast(
+          msg: "${error.toString()}",
+          backgroundColor: Colors.blueGrey,
+          timeInSecForIosWeb: 5,
+        );
+      });
     } catch (e) {
-      Fluttertoast.showToast(msg: "Invalid email and password");
+      // Handle errors during user registration
+      print("Error during sign in: $e");
+      Fluttertoast.showToast(
+        msg: "Sign in failed. Please try again.",
+        backgroundColor: Colors.blueGrey,
+        timeInSecForIosWeb: 5,
+      );
+    } finally {
+      setState(() {
+        isLoading = false; // Stop loading state
+      });
     }
-
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -86,7 +124,7 @@ class _LoginPageState extends State<LoginPage> {
                   child: TextField(
                     // controller: user_email,
 
-                    controller: email,
+                    controller: emailLoginController,
                     keyboardType: TextInputType.emailAddress,
                     cursorColor: Colors.white,
                     style: TextStyle(color: Colors.white),
@@ -128,7 +166,7 @@ class _LoginPageState extends State<LoginPage> {
                   child: TextField(
                     // controller: user_password,
 
-                    controller: password,
+                    controller: passwordLoginController,
                     keyboardType: TextInputType.visiblePassword,
                     obscureText: true,
                     cursorColor: Colors.white,
@@ -251,7 +289,7 @@ class _LoginPageState extends State<LoginPage> {
                       child: ElevatedButton(
                         onPressed: () {
 
-                          signInWithGoogle();
+                          _handleGoogleSignIn();
                         },
                         child: Image(
                             image: NetworkImage(
@@ -311,7 +349,7 @@ class _LoginPageState extends State<LoginPage> {
                           Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => SignUpPage(),
+                                builder: (context) => Regester(),
                               ));
                         },
                         child: Text(" Sign Up",
@@ -350,151 +388,45 @@ class _LoginPageState extends State<LoginPage> {
   //   return userCredential;
   //
   // }
-  Future<UserCredential?> signInWithGoogle() async {
-    // Trigger the authentication flow
-    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-
-    if (googleUser == null) {
-      // Handle if Google sign-in is canceled or fails
-      return null;
-    }
-
-    // Obtain the auth details from the request
-    final GoogleSignInAuthentication? googleAuth = await googleUser.authentication;
-
-    // Create a new credential
-    final credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth?.accessToken,
-      idToken: googleAuth?.idToken,
-    );
-
-    // Once signed in, return the UserCredential
+  void _handleGoogleSignIn() async {
     try {
-      UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+      final GoogleSignInAccount? googleSignInAccount = await GoogleSignIn().signIn();
 
-      // Store the document ID in SharedPreferences
-      if (userCredential.user != null) {
-        String? docId = userCredential.user!.uid;
-        final prefs = await SharedPreferences.getInstance();
-        prefs.setString('userDocId', docId);
+      if (googleSignInAccount != null) {
+        final GoogleSignInAuthentication googleSignInAuthentication =
+        await googleSignInAccount.authentication;
+
+        final AuthCredential credential = GoogleAuthProvider.credential(
+          accessToken: googleSignInAuthentication.accessToken,
+          idToken: googleSignInAuthentication.idToken,
+        );
+
+        await FirebaseAuth.instance.signInWithCredential(credential);
+        SharedPreferences prefs =
+        await SharedPreferences.getInstance();
+        prefs.setBool('isPhone', false);
+
+        Fluttertoast.showToast(
+          msg: "Google Login successful",
+          backgroundColor: Colors.blueGrey,
+          timeInSecForIosWeb: 5,
+        );
+
+        Navigator.push(context, MaterialPageRoute(builder: (context)=>BottomNavigation()) );
+      } else {
+        Fluttertoast.showToast(
+          msg: "Google Login failed",
+          backgroundColor: Colors.blueGrey,
+          timeInSecForIosWeb: 5,
+        );
       }
-
-      // Navigate to the BottomNavigation page
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => BottomNavigation()),
-      );
-
-      return userCredential;
     } catch (e) {
-      // Handle sign-in errors
-      print('Error signing in with Google: $e');
-      return null;
+      print(e);
+      Fluttertoast.showToast(
+        msg: "Google Login Failed",
+        backgroundColor: Colors.blueGrey,
+        timeInSecForIosWeb: 5,
+      );
     }
   }
-
-
-
-
-
-
-  // Future<bool> isEmailRegistered(String email) async {
-  //   try {
-  //     QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore.instance
-  //         .collection('users')
-  //         .where('email', isEqualTo: email)
-  //         .get();
-  //
-  //     return snapshot.docs.isNotEmpty;
-  //   } catch (e) {
-  //     print('Error checking email registration: $e');
-  //     return false;
-  //   }
-  // }
-  //
-  // Future<void> signInOrRegisterUser() async {
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   String? storedDocId = prefs.getString('userDocId');
-  //
-  //   if (storedDocId != null && storedDocId.isNotEmpty) {
-  //     // Stored userDocId exists, check if the user's email is registered
-  //     String? email = prefs.getString('userEmail');
-  //     if (email != null && email.isNotEmpty) {
-  //       bool emailExists = await isEmailRegistered(email);
-  //
-  //       if (emailExists) {
-  //         // Email exists in Firestore, navigate to BottomNavigation
-  //         Navigator.pushReplacement(
-  //           context,
-  //           MaterialPageRoute(builder: (context) => BottomNavigation()),
-  //         );
-  //       } else {
-  //         // Email doesn't exist, navigate to SignUpPage
-  //         Navigator.pushReplacement(
-  //           context,
-  //           MaterialPageRoute(builder: (context) => SignUpPage()),
-  //         );
-  //       }
-  //     } else {
-  //       // Email is null or empty, handle accordingly
-  //     }
-  //   } else {
-  //     // No stored userDocId, perform Google sign-in
-  //     await signInWithGoogle();
-  //   }
-  // }
-  //
-  // Future<void> signInWithGoogle() async {
-  //   // ... your previous signInWithGoogle logic
-  //   // Trigger the authentication flow
-  //   final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-  //
-  //   if (googleUser == null) {
-  //     // Handle if Google sign-in is canceled or fails
-  //     return;
-  //   }
-  //
-  //   // Obtain the auth details from the request
-  //   final GoogleSignInAuthentication? googleAuth = await googleUser.authentication;
-  //
-  //   // Create a new credential
-  //   final credential = GoogleAuthProvider.credential(
-  //     accessToken: googleAuth?.accessToken,
-  //     idToken: googleAuth?.idToken,
-  //   );
-  //
-  //   try {
-  //     UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
-  //
-  //     if (userCredential.user != null) {
-  //       String? email = userCredential.user!.email;
-  //
-  //       if (email != null && email.isNotEmpty) {
-  //         // Check if the user's email already exists in Firestore
-  //         bool emailExists = await isEmailRegistered(email);
-  //
-  //         if (emailExists) {
-  //           // Email exists, navigate to BottomNavigation
-  //           Navigator.pushReplacement(
-  //             context,
-  //             MaterialPageRoute(builder: (context) => BottomNavigation()),
-  //           );
-  //         } else {
-  //           // Email doesn't exist, navigate to SignUpPage
-  //           Navigator.pushReplacement(
-  //             context,
-  //             MaterialPageRoute(builder: (context) => SignUpPage()),
-  //           );
-  //         }
-  //       } else {
-  //         // Email is null or empty, handle accordingly
-  //       }
-  //     }
-  //   } catch (e) {
-  //     // Handle sign-in errors
-  //     print('Error signing in with Google: $e');
-  //   }
-  // }
-  //
-
 }

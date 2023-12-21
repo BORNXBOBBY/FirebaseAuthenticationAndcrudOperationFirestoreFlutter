@@ -20,7 +20,7 @@ class _BottomNavigationState extends State<BottomNavigation> {
     HomeBottomNav(),
     // const CRUDEoperation(),
     // const NotificationBottomNav(),
-     AccountBottomNav(),
+     Profile(),
     CartPage()
   ];
   @override

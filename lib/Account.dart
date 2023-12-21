@@ -1,340 +1,148 @@
-// import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:flutter/material.dart';
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:lottie/lottie.dart';
-//
-// import 'EditProfile.dart';
-//
-// class AccountBottomNav extends StatefulWidget {
-//   const AccountBottomNav({Key? key});
-//
-//   @override
-//   State<AccountBottomNav> createState() => _AccountBottomNavState();
-// }
-//
-// class _AccountBottomNavState extends State<AccountBottomNav> {
-//   User? _user;
-//   Map<String, dynamic>? _userData;
-//
-//   @override
-//   void initState() {
-//     super.initState();
-//     FirebaseAuth.instance.authStateChanges().listen((event) async {
-//       setState(() {
-//         _user = event;
-//       });
-//       if (_user != null) {
-//         await fetchUserData(_user!.uid);
-//       }
-//     });
-//   }
-//
-//   Future<void> fetchUserData(String uid) async {
-//     try {
-//       DocumentSnapshot<Map<String, dynamic>> snapshot =
-//       await FirebaseFirestore.instance.collection('users').doc(uid).get();
-//       setState(() {
-//         _userData = snapshot.data();
-//       });
-//     } catch (e) {
-//       print('Error fetching user data: $e');
-//     }
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       backgroundColor: const Color(0xFFE8F5E9),
-//       appBar: AppBar(
-//         backgroundColor: Colors.green,
-//         title: const Text('Account'),
-//       ),
-//       body: Padding(
-//         padding: const EdgeInsets.all(20.0),
-//         child: Column(
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           children: [
-//             Container(
-//               child: Lottie.network(
-//                 'https://assets7.lottiefiles.com/packages/lf20_NODCLWy3iX.json',
-//               ),
-//             ),
-//             Expanded(
-//               child: Container(
-//                 decoration: BoxDecoration(
-//                   color: Colors.white,
-//                   borderRadius: BorderRadius.circular(12),
-//                   boxShadow: [
-//                     BoxShadow(
-//                       color: Colors.grey.withOpacity(0.5),
-//                       spreadRadius: 2,
-//                       blurRadius: 5,
-//                       offset: const Offset(0, 3),
-//                     ),
-//                   ],
-//                 ),
-//                 child: Padding(
-//                   padding: const EdgeInsets.all(16.0),
-//                   child: Column(
-//                     crossAxisAlignment: CrossAxisAlignment.stretch,
-//                     children: [
-//                       Row(
-//                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                         children: [
-//                           if (_user != null && _user!.photoURL != null)
-//                             CircleAvatar(
-//                               radius: 40,
-//                               backgroundImage: NetworkImage(_user!.photoURL!),
-//                             ),
-//                           Flexible(
-//                             child: _user != null && _user!.email != null
-//                                 ? Text(
-//                               'Email: ${_user!.email}',
-//                               overflow: TextOverflow.ellipsis,
-//                             )
-//                                 : SizedBox(),
-//                           ),
-//                         ],
-//                       ),
-//                       const SizedBox(height: 20),
-//                       const Text(
-//                         'User Information',
-//                         style: TextStyle(
-//                           fontSize: 18,
-//                           fontWeight: FontWeight.bold,
-//                         ),
-//                       ),
-//                       Expanded(
-//                         child: ListView(
-//                           shrinkWrap: true,
-//                           children: [
-//                             if (_userData != null) ...[
-//                               ListTile(
-//                                 title: Text('Name'),
-//                                 subtitle: Text(_userData!['name'] ?? 'No name'),
-//                               ),
-//                               ListTile(
-//                                 title: Text('Phone'),
-//                                 subtitle:
-//                                 Text(_userData!['phone'] ?? 'No phone'),
-//                               ),
-//                               ListTile(
-//                                 title: Text('Address'),
-//                                 subtitle:
-//                                 Text(_userData!['address'] ?? 'No address'),
-//                               ),
-//                             ],
-//                           ],
-//                         ),
-//                       ),
-//                       IconButton(
-//                         onPressed: () {
-//                           Navigator.push(
-//                             context,
-//                             MaterialPageRoute(
-//                               builder: (context) => EditProfile(),
-//                             ),
-//                           );
-//                         },
-//                         icon: Icon(Icons.edit),
-//                         color: Colors.green,
-//                       ),
-//                     ],
-//                   ),
-//                 ),
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
+import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:lottie/lottie.dart';
+import 'package:google_auth_flutter/EditProfile.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-import 'EditProfile.dart';
 
-class AccountBottomNav extends StatefulWidget {
-  const AccountBottomNav({Key? key});
+
+class Profile extends StatefulWidget {
+  const Profile({Key? key});
 
   @override
-  State<AccountBottomNav> createState() => _AccountBottomNavState();
+  State<Profile> createState() => _ProfileState();
 }
 
-class _AccountBottomNavState extends State<AccountBottomNav> {
-  // User? _user;
-  // Map<String, dynamic>? _userData;
-  //
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   FirebaseAuth.instance.authStateChanges().listen((event) async {
-  //     setState(() {
-  //       _user = event;
-  //     });
-  //     if (_user != null) {
-  //       await fetchUserData(_user!.uid);
-  //     }
-  //   });
-  // }
-
+class _ProfileState extends State<Profile> {
+  final CollectionReference _items = FirebaseFirestore.instance.collection('UserProfileData');
 
   User? _user;
-  Map<String, dynamic>? _userData;
+  String? _userName;
+  String? _userEmail;
+  String? _userMobile;
+  String? _docId;
+  final auth = FirebaseAuth.instance;
 
-  @override
-  void initState() {
-    super.initState();
-    FirebaseAuth.instance.authStateChanges().listen((event) async {
-      setState(() {
-        _user = event;
-      });
-      if (_user != null) {
-        await fetchUserData(_user!.uid); // Fetch data using UID
+  // Method to fetch user data
+  Future<void> _fetchUserData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    String? storedUid = prefs.getString('userDocId');
+    bool? status = prefs.getBool('isPhone');
+    final currentUser = auth.currentUser;
+    String? phoneNumber = currentUser?.phoneNumber;
+    String? email = currentUser?.email;
+
+    if (currentUser != null) {
+      try {
+        DocumentSnapshot<Object?> snapshot;
+        if (status ==null || status == false) {
+          snapshot = await _items.where('email', isEqualTo: email).limit(1).get().then((querySnapshot) {
+            if (querySnapshot.docs.isNotEmpty) {
+              return querySnapshot.docs.first;
+            } else {
+              throw Exception("User data not found for phone number: $phoneNumber");
+            }
+          });
+
+        } else {
+          // If no stored document ID, try fetching based on phone number
+          snapshot = await _items.where('mobile', isEqualTo: phoneNumber).limit(1).get().then((querySnapshot) {
+            if (querySnapshot.docs.isNotEmpty) {
+              return querySnapshot.docs.first;
+            } else {
+              throw Exception("User data not found for phone number: $phoneNumber");
+            }
+          });
+        }
+
+        if (snapshot.exists) {
+          Map<String, dynamic>? userData = snapshot.data() as Map<String, dynamic>?;
+
+          if (userData != null) {
+            setState(() {
+              _userName = userData['name'];
+              _userEmail = userData['email'];
+              _userMobile = userData['mobile'];
+              _docId = userData["userId"];
+            });
+          }
+        } else {
+          print("User data does not exist in Firestore");
+        }
+      } catch (e) {
+        print("Error fetching user data: $e");
       }
-    });
-  }
-
-
-  // Future<void> fetchUserData(String uid) async {
-  //   try {
-  //     DocumentSnapshot<Map<String, dynamic>> snapshot =
-  //     await FirebaseFirestore.instance.collection('users').doc(uid).get();
-  //     setState(() {
-  //       _userData = snapshot.data();
-  //     });
-  //   } catch (e) {
-  //     print('Error fetching user data: $e');
-  //   }
-  // }
-
-  Future<void> fetchUserData(String? userId) async {
-    try {
-      DocumentSnapshot<Map<String, dynamic>> snapshot =
-      await FirebaseFirestore.instance.collection('users').doc(userId).get();
-
-      if (snapshot.exists) {
-        setState(() {
-          _userData = snapshot.data();
-        });
-      } else {
-        print('No user data found for user ID: $userId');
-      }
-    } catch (e) {
-      print('Error fetching user data: $e');
     }
   }
 
 
+
+  @override
+  void initState() {
+    super.initState();
+    FirebaseAuth.instance.authStateChanges().listen((user) {
+      setState(() {
+        _user = user;
+      });
+
+      if (_user != null) {
+        // Fetch user profile data from Firestore
+        _fetchUserData();
+      }
+
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFE8F5E9),
       appBar: AppBar(
         backgroundColor: Colors.green,
-        title: const Text('Account'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              child: Lottie.network(
-                'https://assets7.lottiefiles.com/packages/lf20_NODCLWy3iX.json',
-              ),
-            ),
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.5),
-                      spreadRadius: 2,
-                      blurRadius: 5,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          if (_user != null && _user!.photoURL != null)
-                            CircleAvatar(
-                              radius: 40,
-                              backgroundImage: NetworkImage(_user!.photoURL!),
-                            ),
-                          Flexible(
-                            child: _user != null && _user!.email != null
-                                ? Text(
-                              'Email: ${_user!.email}',
-                              overflow: TextOverflow.ellipsis,
-                            )
-                                : SizedBox(),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      const Text(
-                        'User Information',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Expanded(
-                        child: ListView(
-                          shrinkWrap: true,
-                          children: [
-                            if (_userData != null) ...[
-                              ListTile(
-                                title: Text('Name'),
-                                subtitle: Text(_userData!['name'] ?? 'No name'),
-                              ),
-                              ListTile(
-                                title: Text('Phone'),
-                                subtitle:
-                                Text(_userData!['phone'] ?? 'No phone'),
-                              ),
-                              ListTile(
-                                title: Text('Address'),
-                                subtitle:
-                                Text(_userData!['address'] ?? 'No address'),
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
-                      IconButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => EditProfile(),
-                            ),
-                          );
-                        },
-                        icon: Icon(Icons.edit),
-                        color: Colors.green,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
+        title: Text("Profile Page"),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
         ),
+      ),
+
+      body: Center(
+        child: _user != null
+            ? Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            SizedBox(height: 10),
+            if (_userName != null) Text(_userName!),
+            SizedBox(height: 10),
+            if (_userEmail != null) Text(_userEmail!),
+            SizedBox(height: 20),
+            if (_userMobile != null) Text(_userMobile!),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => EditProfile(),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                primary: Colors.green, // Set the button's background color
+                onPrimary: Colors.white, // Set the text color
+              ),
+              child: Text("Edit Profile"),
+            ),
+
+          ],
+        )
+            : CircularProgressIndicator(), // Show loading indicator
       ),
     );
   }

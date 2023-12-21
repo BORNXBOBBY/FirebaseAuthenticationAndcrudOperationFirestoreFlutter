@@ -75,7 +75,7 @@ class _OtpPageState extends State<OtpPage> {
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => PhoneSignUp(),
+                              builder: (context) => PhoneRegister(),
                             ),
                           );
                         } else {
